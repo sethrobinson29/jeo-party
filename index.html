@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeopardy Trivia Game</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const API_BASE = 'http://localhost:8000/api.php';
+
+        function JeopardyGame() {
+            const [clue, setClue] = useState(null);
+            const [answer, setAnswer] = useState('');
+            const [result, setResult] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [validationError, setValidationError] = useState('');
+
+            const fetchRandomClue = async () => {
+                setLoading(true);
+                setError(null);
+                setResult(null);
+                setAnswer('');
+                setValidationError('');
+
+                try {
+                    const response = await fetch(`${API_BASE}?endpoint=random-clue`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        console.log('Received clue data:', data.clue); // Debug log
+                        setClue(data.clue);
+                    } else {
+                        setError(data.error || 'Failed to fetch clue');
+                    }
+                } catch (err) {
+                    setError('Network error. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const validateInput = (value) => {
+                const regex = /^[a-zA-Z0-9\s]*$/;
+                return regex.test(value);
+            };
+
+            const handleAnswerChange = (e) => {
+                const value = e.target.value;
+                setAnswer(value);
+                
+                if (!validateInput(value)) {
+                    setValidationError('Only letters and numbers are allowed');
+                } else {
+                    setValidationError('');
+                }
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter' && !isSubmitDisabled) {
+                    handleSubmit();
+                }
+            };
+
+            const handleSubmit = () => {
+                if (!clue || !answer.trim()) return;
+
+                const userAnswer = answer.trim().toLowerCase();
+                const correctAnswer = clue.response.toLowerCase();
+
+                if (userAnswer === correctAnswer) {
+                    setResult('correct');
+                } else {
+                    setResult('incorrect');
+                }
+            };
+
+            const resetGame = () => {
+                setClue(null);
+                setAnswer('');
+                setResult(null);
+                setError(null);
+                setValidationError('');
+            };
+
+            const nextQuestion = () => {
+                fetchRandomClue();
+            };
+
+            const hasValidationError = validationError !== '';
+            const isSubmitDisabled = !answer.trim() || hasValidationError || !clue || result !== null;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-4">
+                    <div className="max-w-2xl w-full">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-5xl font-bold text-yellow-400 mb-2" style={{ fontFamily: 'serif' }}>
+                                JEOPARDY!
+                            </h1>
+                            <p className="text-blue-200 text-sm">Test your trivia knowledge</p>
+                        </div>
+
+                        {/* Main Card */}
+                        <div className="bg-blue-950 rounded-lg shadow-2xl border-4 border-yellow-400 overflow-hidden">
+                            {/* Status Messages */}
+                            {error && (
+                                <div className="bg-red-600 text-white p-4 text-center">
+                                    <p className="font-semibold">Error: {error}</p>
+                                </div>
+                            )}
+
+                            {/* Clue Display */}
+                            {!clue && !loading && !error && (
+                                <div className="p-12 text-center">
+                                    <p className="text-blue-300 text-lg mb-6">Ready to test your knowledge?</p>
+                                    <button
+                                        onClick={fetchRandomClue}
+                                        className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-4 px-8 rounded-lg text-xl transition-colors shadow-lg"
+                                    >
+                                        Get Random Clue
+                                    </button>
+                                </div>
+                            )}
+
+                            {loading && (
+                                <div className="p-12 text-center">
+                                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent mb-4"></div>
+                                    <p className="text-blue-300 text-lg">Loading clue...</p>
+                                </div>
+                            )}
+
+                            {clue && !result && (
+                                <div className="p-8">
+                                    {/* Category */}
+                                    <div className="text-center mb-6">
+                                        <div className="inline-block bg-blue-800 px-6 py-2 rounded-lg border-2 border-yellow-400">
+                                            <p className="text-yellow-400 font-bold text-sm uppercase tracking-wider">Category</p>
+                                            <p className="text-white text-xl font-semibold">{clue.category}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Clue */}
+                                    <div className="bg-blue-900 p-6 rounded-lg mb-6 border-2 border-blue-700">
+                                        <p className="text-white text-2xl text-center leading-relaxed">
+                                            {clue.clue}
+                                        </p>
+                                    </div>
+
+                                    {/* Answer Input */}
+                                    <div className="mb-4">
+                                        <label className="block text-blue-200 mb-2 font-semibold">
+                                            What is...
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={answer}
+                                            onChange={handleAnswerChange}
+                                            onKeyDown={handleKeyDown}
+                                            placeholder="Type your answer here"
+                                            className={`w-full px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 ${
+                                                hasValidationError
+                                                    ? 'bg-red-100 border-2 border-red-500 focus:ring-red-500'
+                                                    : 'bg-white text-blue-900 focus:ring-yellow-400'
+                                            }`}
+                                            autoFocus
+                                        />
+                                        {hasValidationError && (
+                                            <p className="text-red-400 text-sm mt-2 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {validationError}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={isSubmitDisabled}
+                                        className={`w-full font-bold py-3 px-6 rounded-lg text-xl transition-all ${
+                                            isSubmitDisabled
+                                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                                : 'bg-yellow-400 hover:bg-yellow-500 text-blue-900 shadow-lg hover:shadow-xl'
+                                        }`}
+                                    >
+                                        Submit Answer
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Result Display */}
+                            {result && clue && (
+                                <div className="p-8">
+                                    {result === 'correct' ? (
+                                        <div className="text-center">
+                                            <div className="mb-4">
+                                                <div className="inline-block bg-green-500 rounded-full p-6 mb-4 animate-bounce">
+                                                    <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                                <h2 className="text-4xl font-bold text-green-400 mb-2">Correct!</h2>
+                                                <p className="text-blue-200 text-lg">That's right! 🎉</p>
+                                            </div>
+                                            <div className="bg-blue-900 p-4 rounded-lg mb-6 border-2 border-green-500">
+                                                <p className="text-green-300 text-sm uppercase mb-1">The answer was</p>
+                                                <p className="text-white text-2xl font-semibold">{clue.response}</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center">
+                                            <div className="mb-4">
+                                                <div className="inline-block bg-red-500 rounded-full p-6 mb-4">
+                                                    <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </div>
+                                                <h2 className="text-4xl font-bold text-red-400 mb-2">Not quite!</h2>
+                                                <p className="text-blue-200 text-lg mb-4">Better luck next time</p>
+                                            </div>
+                                            <div className="bg-blue-900 p-4 rounded-lg mb-6 border-2 border-red-500">
+                                                <p className="text-red-300 text-sm uppercase mb-1">The correct answer was</p>
+                                                <p className="text-white text-2xl font-semibold">{clue.response}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button
+                                        onClick={nextQuestion}
+                                        className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg text-xl transition-colors shadow-lg mb-3"
+                                    >
+                                        Next Question
+                                    </button>
+                                    <button
+                                        onClick={resetGame}
+                                        className="w-full bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg text-lg transition-colors"
+                                    >
+                                        Back to Start
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center mt-6">
+                            <p className="text-blue-300 text-sm">
+                                Powered by jService.io API
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<JeopardyGame />);
+    </script>
+</body>
+</html>
