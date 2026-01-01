@@ -10,13 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Configuration - using Open Trivia DB instead
+// TODO: create local server
 const API_BASE_URL = 'https://opentdb.com';
 
-/**
- * Makes a request to the Open Trivia DB API
- */
-function makeApiRequest($endpoint) {
+function makeApiRequest(string $endpoint): array {
     $url = API_BASE_URL . $endpoint;
     
     $ch = curl_init();
@@ -65,17 +62,11 @@ function makeApiRequest($endpoint) {
     ];
 }
 
-/**
- * Decodes HTML entities from Open Trivia DB responses
- */
-function decodeText($text) {
+function decodeText(string $text): string {
     return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-/**
- * Validates and processes the Open Trivia DB API response
- */
-function processApiResponse($apiResponse) {
+function processApiResponse(array $apiResponse): array {
     if (!$apiResponse['success']) {
         return [
             'success' => false,
@@ -103,9 +94,8 @@ function processApiResponse($apiResponse) {
             'error' => $message
         ];
     }
-    
-    // Check if we have results
-    if (!isset($data['results']) || empty($data['results'])) {
+
+    if (empty($data['results'])) {
         return [
             'success' => false,
             'error' => 'No questions returned from API'
@@ -124,11 +114,11 @@ $endpoint = $_GET['endpoint'] ?? '';
 switch ($endpoint) {
     case 'random-clue':
         // Open Trivia DB endpoint - get 1 random question
+        // TODO: Refactor to get more clues and reduce API calls. Maybe total number of clues in an episode of Jeopardy?
         $apiResponse = makeApiRequest('/api.php?amount=1');
         $result = processApiResponse($apiResponse);
         
         if ($result['success']) {
-            // Extract the first question from the results array
             $question = $result['data'][0] ?? null;
             
             if (!$question) {
