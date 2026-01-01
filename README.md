@@ -19,28 +19,8 @@ Backend:
 PHP 7.4+
 cURL for API requests
 RESTful API wrapper
-External API:
+External API: Open Trivia Database - Free trivia questions API
 
-Open Trivia Database - Free trivia questions API
-Project Structure
-trivia/
-├── public/
-│   └── index.html
-├── src/
-│   ├── components/
-│   │   ├── ClueCard.jsx          # Question display and answer input
-│   │   ├── ResultCard.jsx         # Correct/incorrect feedback
-│   │   ├── StartScreen.jsx        # Initial screen with start button
-│   │   └── ErrorMessage.jsx       # Error display component
-│   ├── services/
-│   │   └── api.js                 # API service layer
-│   ├── App.jsx                    # Main application component
-│   ├── index.js                   # React entry point
-│   └── index.css                  # Global styles with Tailwind
-├── api.php                        # PHP backend API wrapper
-├── package.json
-├── tailwind.config.js
-└── postcss.config.js
 Prerequisites
 Node.js 14+ and npm
 PHP 7.4+ with cURL extension enabled
