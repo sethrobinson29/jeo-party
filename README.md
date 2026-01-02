@@ -16,14 +16,14 @@ Tailwind CSS 3.4
 Modern hooks-based architecture
 Backend:
 
-PHP 7.4+
+PHP 8.2
 cURL for API requests
 RESTful API wrapper
 External API: Open Trivia Database - Free trivia questions API
 
 Prerequisites
 Node.js 14+ and npm
-PHP 7.4+ with cURL extension enabled
+PHP 8.2 with cURL extension enabled
 Modern web browser
 Installation
 1. Clone the repository
