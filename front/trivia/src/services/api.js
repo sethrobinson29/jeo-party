@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000/api.php';
+const API_BASE = 'http://localhost:8000/api.php/api/clues';
 
 export async function fetchRandomClue() {
     try {
