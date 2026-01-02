@@ -2,26 +2,19 @@
 
 namespace Controllers;
 
+use Exception;
 use Models\ClueModel;
 
-/**
- * Clue Controller
- * Handles all clue-related requests
- */
 class ClueController
 {
-    private $model;
+    private ClueModel $model;
 
     public function __construct()
     {
         $this->model = new ClueModel();
     }
 
-    /**
-     * GET /api/clues/random
-     * Fetches a random trivia clue
-     */
-    public function random()
+    public function random(): void
     {
         try {
             $clue = $this->model->getRandomClue();
@@ -39,12 +32,17 @@ class ClueController
                 'success' => true,
                 'clue' => $clue
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
                 'success' => false,
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function randomBatch(): void
+    {
+        //TODO
     }
 }

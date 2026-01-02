@@ -2,32 +2,17 @@
 
 namespace Services;
 
-/**
- * Open Trivia DB Service
- * Handles communication with the Open Trivia Database API
- */
 class OpenTriviaService
 {
     private const API_BASE_URL = 'https://opentdb.com';
 
-    /**
-     * Fetch a random question from Open Trivia DB
-     *
-     * @return array Result with 'success' and 'data' or 'error'
-     */
-    public function fetchRandomQuestion()
+    public function fetchRandomQuestion(): array
     {
         $endpoint = '/api.php?amount=1';
         return $this->makeRequest($endpoint);
     }
 
-    /**
-     * Make a request to the Open Trivia DB API
-     *
-     * @param string $endpoint API endpoint path
-     * @return array Result with 'success' and 'data' or 'error'
-     */
-    private function makeRequest($endpoint)
+    private function makeRequest(string $endpoint): array
     {
         $url = self::API_BASE_URL . $endpoint;
 
@@ -74,15 +59,8 @@ class OpenTriviaService
         return $this->processResponse($data);
     }
 
-    /**
-     * Process and validate the API response
-     *
-     * @param array $data Raw API response
-     * @return array Processed result with 'success' and 'data' or 'error'
-     */
-    private function processResponse($data)
+    private function processResponse(array $data): array
     {
-        // Check response code from Open Trivia DB
         if (isset($data['response_code']) && $data['response_code'] !== 0) {
             $errorMessages = [
                 1 => 'No results found',
@@ -101,8 +79,7 @@ class OpenTriviaService
             ];
         }
 
-        // Check if we have results
-        if (!isset($data['results']) || empty($data['results'])) {
+        if (empty($data['results'])) {
             return [
                 'success' => false,
                 'error' => 'No questions returned from API'
