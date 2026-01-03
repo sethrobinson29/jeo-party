@@ -2,69 +2,28 @@ Jeopardy Trivia Game
 A full-stack trivia game application built with React and PHP 8.2.27, featuring Jeopardy-style questions from the Open Trivia Database. Built with modern MVC architecture and extensible service layer.
 
 Features
+
 🎮 Interactive trivia gameplay with random questions
+
 ✅ Real-time input validation (letters and numbers only)
+
 🎨 Beautiful Jeopardy-themed UI with animations
+
 ⌨️ Keyboard support (press Enter to submit)
+
 🔄 Quick "Next Question" functionality
+
 📱 Responsive design
+
 🔌 Pluggable trivia service architecture
+
 🛡️ Request validation and security layer
+
 Tech Stack
-Frontend:
+Frontend: React 18.2 Tailwind CSS 3.4
+Backend: PHP 8.2.27
+External API: Open Trivia Database - Free trivia questions API
 
-React 18.2
-Tailwind CSS 3.4
-Modern hooks-based architecture
-Backend:
-
-PHP 8.2.27
-MVC Architecture
-Service-oriented design
-RESTful API
-PSR-4 autoloading
-Strict type declarations
-External API:
-
-Open Trivia Database - Free trivia questions API
-Project Structure
-trivia/
-├── backend/
-│   ├── index.php                          # Entry point - request validation
-│   ├── router.php                         # Router for PHP built-in server
-│   ├── .htaccess                          # Apache configuration
-│   ├── config/
-│   │   └── routes.php                     # Route definitions
-│   └── src/
-│       ├── Core/
-│       │   ├── Application.php            # Application bootstrap
-│       │   ├── Request.php                # Request handling & validation
-│       │   ├── Response.php               # Response formatting
-│       │   └── Router.php                 # Route matching & dispatch
-│       ├── Controllers/
-│       │   ├── BaseController.php         # Base controller with utilities
-│       │   └── ClueController.php         # Trivia clue endpoints
-│       └── Services/
-│           ├── TriviaServiceInterface.php # Service contract
-│           ├── BaseTriviaService.php      # Shared service functionality
-│           ├── OpenTriviaService.php      # Open Trivia DB implementation
-│           └── CustomTriviaService.php    # Example custom service
-├── public/
-│   └── index.html
-├── src/
-│   ├── components/
-│   │   ├── ClueCard.jsx                   # Question display and answer input
-│   │   ├── ResultCard.jsx                 # Correct/incorrect feedback
-│   │   ├── StartScreen.jsx                # Initial screen with start button
-│   │   └── ErrorMessage.jsx               # Error display component
-│   ├── services/
-│   │   └── api.js                         # API service layer
-│   ├── App.jsx                            # Main application component
-│   ├── index.js                           # React entry point
-│   └── index.css                          # Global styles with Tailwind
-├── package.json
-├── tailwind.config.js
-└── postcss.config.js
 Prerequisites
 Node.js 14+ and npm
 PHP 8.2.27+ with cURL extension enabled
