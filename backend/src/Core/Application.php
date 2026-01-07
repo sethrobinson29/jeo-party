@@ -43,6 +43,7 @@ class Application
         try {
             return $this->router->dispatch($request);
         } catch (\Exception $e) {
+            error_log('Error handling request:' . $e->getMessage());
             return Response::error(
                 'An error occurred while processing your request',
                 500,

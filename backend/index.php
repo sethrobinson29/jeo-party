@@ -66,12 +66,14 @@ $request = Request::createFromGlobals();
 
 // Basic security validation
 if (!$request->isValid()) {
+    error_log('Invalid request');
     Response::error('Invalid or malicious request detected', 400);
     exit;
 }
 
 // Rate limiting check (basic implementation)
 if (!$request->checkRateLimit()) {
+    error_log('Rate limit exceeded');
     Response::error('Rate limit exceeded', 429);
     exit;
 }
@@ -79,4 +81,8 @@ if (!$request->checkRateLimit()) {
 // Bootstrap and run application
 $app = new Application();
 $response = $app->handle($request);
-$response->send();
+try {
+    $response->send();
+} catch (Throwable $e) {
+    error_log('Error sending Response: ' . $e->getMessage());
+}

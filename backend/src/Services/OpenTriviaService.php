@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
+
 /**
  * Open Trivia DB Service
  *
@@ -27,7 +29,7 @@ class OpenTriviaService extends BaseTriviaService
         $question = $response['results'][0] ?? null;
 
         if (!$question) {
-            throw new \Exception('No question data returned');
+            throw new Exception('No question data returned');
         }
 
         return $this->normalizeClue($question);
@@ -42,7 +44,7 @@ class OpenTriviaService extends BaseTriviaService
         // This is a simplified implementation
         // In production, map category names to IDs
 
-        throw new \Exception('Category filtering not yet implemented for Open Trivia DB');
+        throw new Exception('Category filtering not yet implemented for Open Trivia DB');
     }
 
     /**
@@ -53,7 +55,7 @@ class OpenTriviaService extends BaseTriviaService
         $validDifficulties = ['easy', 'medium', 'hard'];
 
         if (!in_array($difficulty, $validDifficulties)) {
-            throw new \Exception("Invalid difficulty: $difficulty");
+            throw new Exception("Invalid difficulty: $difficulty");
         }
 
         $url = self::API_BASE_URL . "/api.php?amount=1&difficulty=$difficulty";
@@ -78,12 +80,12 @@ class OpenTriviaService extends BaseTriviaService
     /**
      * Validate Open Trivia DB response
      *
-     * @throws \Exception if response is invalid
+     * @throws Exception if response is invalid
      */
     private function validateResponse(array $response): void
     {
         if (!isset($response['response_code'])) {
-            throw new \Exception('Invalid API response structure');
+            throw new Exception('Invalid API response structure');
         }
 
         $errorMessages = [
@@ -99,11 +101,11 @@ class OpenTriviaService extends BaseTriviaService
 
         if ($code !== 0) {
             $message = $errorMessages[$code] ?? 'Unknown error';
-            throw new \Exception($message);
+            throw new Exception($message);
         }
 
-        if (!isset($response['results']) || empty($response['results'])) {
-            throw new \Exception('No questions returned');
+        if (empty($response['results'])) {
+            throw new Exception('No questions returned');
         }
     }
 

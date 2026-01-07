@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
+
 /**
  * Trivia Service Interface
  *
@@ -16,7 +18,7 @@ interface TriviaServiceInterface
      * Get a random trivia clue
      *
      * @return array Normalized clue data with keys: category, clue, response, difficulty, type
-     * @throws \Exception if the request fails
+     * @throws Exception if the request fails
      */
     public function getRandomClue(): array;
 
@@ -25,7 +27,7 @@ interface TriviaServiceInterface
      *
      * @param string $category Category name
      * @return array Array of normalized clue data
-     * @throws \Exception if the request fails
+     * @throws Exception if the request fails
      */
     public function getCluesByCategory(string $category): array;
 
@@ -34,7 +36,7 @@ interface TriviaServiceInterface
      *
      * @param string $difficulty Difficulty level (easy, medium, hard)
      * @return array Array of normalized clue data
-     * @throws \Exception if the request fails
+     * @throws Exception if the request fails
      */
     public function getCluesByDifficulty(string $difficulty): array;
 

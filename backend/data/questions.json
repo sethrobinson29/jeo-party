@@ -1,0 +1,16 @@
+[
+  {
+    "category": "HISTORY",
+    "question": "This queen ruled England from 1558 to 1603",
+    "answer": "Elizabeth I",
+    "value": 400,
+    "air_date": "1984-09-10"
+  },
+  {
+    "category": "SCIENCE",
+    "question": "This is the chemical symbol for gold",
+    "answer": "Au",
+    "value": 200,
+    "air_date": "1990-05-15"
+  }
+]

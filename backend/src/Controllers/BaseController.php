@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Request;
-use App\Core\Response;
+
 
 /**
  * Base Controller
@@ -59,6 +59,6 @@ abstract class BaseController
      */
     protected function getRouteParam(Request $request, string $key, mixed $default = null): mixed
     {
-        return $request->routeParams[$key] ?? $default;
+        return $request->getRouteParams()[$key] ?? $default;
     }
 }

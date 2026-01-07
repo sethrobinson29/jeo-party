@@ -6,8 +6,11 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Services\LocalJeopardyService;
 use App\Services\TriviaServiceInterface;
-use App\Services\OpenTriviaService;
+use Exception;
+
+//use App\Services\OpenTriviaService;
 
 /**
  * Clue Controller
@@ -22,7 +25,8 @@ class ClueController extends BaseController
     {
         // In the future, inject this via DI container
         // For now, instantiate the default service
-        $this->triviaService = new OpenTriviaService();
+//        $this->triviaService = new OpenTriviaService();
+        $this->triviaService = new LocalJeopardyService();
     }
 
     /**
@@ -30,13 +34,13 @@ class ClueController extends BaseController
      *
      * Fetch a random trivia clue
      */
-    public function random(Request $request): Response
+    public function randomAction(Request $request): Response
     {
         try {
             $clue = $this->triviaService->getRandomClue();
 
             return Response::success(['clue' => $clue]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return Response::error(
                 'Failed to fetch clue',
                 500,
@@ -50,7 +54,7 @@ class ClueController extends BaseController
      *
      * Fetch clues by category (example of future endpoint)
      */
-    public function byCategory(Request $request): Response
+    public function byCategoryAction(Request $request): Response
     {
         $category = $this->getRouteParam($request, 'category');
 
@@ -58,7 +62,7 @@ class ClueController extends BaseController
             $clues = $this->triviaService->getCluesByCategory($category);
 
             return Response::success(['clues' => $clues]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return Response::error(
                 'Failed to fetch clues',
                 500,

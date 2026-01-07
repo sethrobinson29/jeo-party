@@ -17,6 +17,7 @@ class Request
     private array $query;
     private array $body;
     private array $headers;
+    private array $routeParams;
 
     public function __construct(
         string $method,
@@ -31,6 +32,7 @@ class Request
         $this->query = $query;
         $this->body = $body;
         $this->headers = $headers;
+        $this->routeParams = [];
     }
 
     /**
@@ -149,5 +151,15 @@ class Request
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    public function getRouteParams(): array
+    {
+        return $this->routeParams;
+    }
+
+    public function setRouteParams(array $routeParams): void
+    {
+        $this->routeParams = $routeParams;
     }
 }

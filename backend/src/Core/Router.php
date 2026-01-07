@@ -85,7 +85,7 @@ class Router
         // Inject params into request if any
         foreach ($params as $key => $value) {
             // Store route params for controller access
-            $request->routeParams = $params;
+            $request->setRouteParams($params);
         }
 
         if (is_callable($handler)) {
@@ -94,6 +94,7 @@ class Router
 
         if (is_array($handler) && count($handler) === 2) {
             [$controllerClass, $method] = $handler;
+            $method .= 'Action';
 
             if (!class_exists($controllerClass)) {
                 return Response::error("Controller not found: $controllerClass", 500);
