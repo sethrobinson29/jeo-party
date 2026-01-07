@@ -1,8 +1,11 @@
 const API_BASE = 'http://localhost:8000/api/clues';
+const DEBUG = true;
 
 export async function fetchRandomClue() {
     try {
-        const response = await fetch(`${API_BASE}/random`);
+        // TODO: remove when done
+        const debugParam = DEBUG ? '?XDEBUG_SESSION_START=PHPSTORM' : '';
+        const response = await fetch(`${API_BASE}/random${debugParam}`);
         const data = await response.json();
 
         console.log('API Response:', data); // Debug log
