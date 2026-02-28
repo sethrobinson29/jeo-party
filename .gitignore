@@ -10,6 +10,7 @@
 /build
 
 # misc
+.idea/
 .DS_Store
 .env.local
 .env.development.local
@@ -17,3 +18,4 @@
 .env.production.local
 CLAUDE.md
 npm-debug.log*
+/backend/.htaccess
