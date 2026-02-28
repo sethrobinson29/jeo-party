@@ -1,9 +1,10 @@
-import React from 'react';
-
-function ErrorMessage({ message }) {
+function ErrorMessage({ message, onDismiss }) {
     return (
-        <div className="bg-red-600 text-white p-4 text-center">
-            <p className="font-semibold">Error: {message}</p>
+        <div className="error-bar">
+            <span>Error: {message}</span>
+            {onDismiss && (
+                <button className="error-dismiss" onClick={onDismiss}>✕</button>
+            )}
         </div>
     );
 }

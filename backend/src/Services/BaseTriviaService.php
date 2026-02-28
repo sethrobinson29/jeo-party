@@ -40,7 +40,7 @@ abstract class BaseTriviaService implements TriviaServiceInterface
             throw new \Exception("Connection error: $error");
         }
 
-        if ($httpCode !== 200) {
+        if ($httpCode !== 200 && $httpCode !== 429) {
             throw new \Exception("API returned status $httpCode");
         }
 

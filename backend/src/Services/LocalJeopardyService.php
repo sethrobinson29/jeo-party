@@ -29,7 +29,24 @@ class LocalJeopardyService extends BaseTriviaService
         return $this->normalizeClue($this->questions[array_rand($this->questions)]);
     }
 
-    public function getCluesByCategory(string $category): array
+    public function getBatchClues(int $count): array
+    {
+        if (empty($this->questions)) {
+            throw new \Exception('No questions available');
+        }
+
+        $count = max(1, min($count, count($this->questions)));
+        $keys = (array) array_rand($this->questions, $count);
+
+        return array_map(fn($k) => $this->normalizeClue($this->questions[$k]), $keys);
+    }
+
+    public function getCategories(): array
+    {
+        return [];
+    }
+
+    public function getCluesByCategory(string $category, int $count = 5): array
     {
         $filtered = array_filter(
             $this->questions,
@@ -40,7 +57,7 @@ class LocalJeopardyService extends BaseTriviaService
             throw new \Exception("No questions found for category: $category");
         }
 
-        return array_map(fn($q) => $this->normalizeClue($q), array_slice($filtered, 0, 10));
+        return array_map(fn($q) => $this->normalizeClue($q), array_slice($filtered, 0, $count));
     }
 
     public function getCluesByDifficulty(string $difficulty): array
