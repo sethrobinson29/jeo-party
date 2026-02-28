@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Logging\Logger;
+
 class Application
 {
     private Router $router;
@@ -26,6 +28,7 @@ class Application
         try {
             return $this->router->dispatch($request);
         } catch (\Exception $e) {
+            Logger::error('Unhandled exception in router dispatch', ['exception' => $e]);
             return Response::error('An error occurred', 500);
         }
     }

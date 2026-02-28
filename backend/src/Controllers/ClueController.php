@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Logging\Logger;
 use App\Services\OpenTriviaService;
 use App\Services\TriviaServiceInterface;
 
@@ -23,6 +24,7 @@ class ClueController extends BaseController
         try {
             return Response::success(['clue' => $this->triviaService->getRandomClue()]);
         } catch (\Exception $e) {
+            Logger::error('Failed to fetch random clue', ['exception' => $e]);
             return Response::error('Failed to fetch clue', 500);
         }
     }
@@ -35,6 +37,7 @@ class ClueController extends BaseController
         try {
             return Response::success(['clues' => $this->triviaService->getBatchClues($count)]);
         } catch (\Exception $e) {
+            Logger::error('Failed to fetch batch clues', ['exception' => $e, 'count' => $count]);
             return Response::error('Failed to fetch clues', 500);
         }
     }
@@ -53,6 +56,7 @@ class ClueController extends BaseController
         try {
             return Response::success(['clues' => $this->triviaService->getCluesByCategory($categoryId, $count)]);
         } catch (\Exception $e) {
+            Logger::error('Failed to fetch clues for category', ['exception' => $e, 'category' => $categoryId]);
             return Response::error('Failed to fetch clues for category', 500);
         }
     }
