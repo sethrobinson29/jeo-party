@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Logging\Logger;
 use App\Services\OpenTriviaService;
+use Throwable;
 
 class CategoryController extends BaseController
 {
@@ -22,9 +23,9 @@ class CategoryController extends BaseController
     {
         try {
             return Response::success(['categories' => $this->triviaService->getCategories()]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Logger::error('Failed to fetch categories', ['exception' => $e]);
-            return Response::error('Failed to fetch categories', 500);
+            return Response::error('Failed to fetch categories');
         }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Logging\Logger;
+use Throwable;
 
 class Application
 {
@@ -27,9 +28,9 @@ class Application
     {
         try {
             return $this->router->dispatch($request);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Logger::error('Unhandled exception in router dispatch', ['exception' => $e]);
-            return Response::error('An error occurred', 500);
+            return Response::error('An error occurred');
         }
     }
 }

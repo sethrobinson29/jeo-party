@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
+
 abstract class BaseTriviaService implements TriviaServiceInterface
 {
     protected function makeHttpRequest(string $url, string $method = 'GET', ?array $data = null): array
@@ -44,17 +46,17 @@ abstract class BaseTriviaService implements TriviaServiceInterface
         curl_close($ch);
 
         if ($error) {
-            throw new \Exception("Connection error: $error");
+            throw new Exception("Connection error: $error");
         }
 
         if ($httpCode !== 200 && $httpCode !== 429) {
-            throw new \Exception("API returned status $httpCode");
+            throw new Exception("API returned status $httpCode");
         }
 
         $decoded = json_decode($response, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON response');
+            throw new Exception('Invalid JSON response');
         }
 
         return $decoded;

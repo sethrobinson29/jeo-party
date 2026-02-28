@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
+
 class LocalJeopardyService extends BaseTriviaService
 {
     private array $questions;
@@ -13,17 +15,17 @@ class LocalJeopardyService extends BaseTriviaService
         $path = $dataFile ?? dirname(__DIR__, 2) . '/data/questions.json';
 
         if (!file_exists($path)) {
-            throw new \Exception("Data file not found: $path");
+            throw new Exception("Data file not found: $path");
         }
 
         $this->questions = json_decode(file_get_contents($path), true)
-            ?? throw new \Exception('Invalid JSON in data file');
+            ?? throw new Exception('Invalid JSON in data file');
     }
 
     public function getRandomClue(): array
     {
         if (empty($this->questions)) {
-            throw new \Exception('No questions available');
+            throw new Exception('No questions available');
         }
 
         return $this->normalizeClue($this->questions[array_rand($this->questions)]);
@@ -32,7 +34,7 @@ class LocalJeopardyService extends BaseTriviaService
     public function getBatchClues(int $count): array
     {
         if (empty($this->questions)) {
-            throw new \Exception('No questions available');
+            throw new Exception('No questions available');
         }
 
         $count = max(1, min($count, count($this->questions)));
@@ -54,7 +56,7 @@ class LocalJeopardyService extends BaseTriviaService
         );
 
         if (empty($filtered)) {
-            throw new \Exception("No questions found for category: $category");
+            throw new Exception("No questions found for category: $category");
         }
 
         return array_map(fn($q) => $this->normalizeClue($q), array_slice($filtered, 0, $count));
@@ -65,7 +67,7 @@ class LocalJeopardyService extends BaseTriviaService
         $ranges = ['easy' => [100, 400], 'medium' => [401, 800], 'hard' => [801, PHP_INT_MAX]];
 
         if (!isset($ranges[$difficulty])) {
-            throw new \Exception("Invalid difficulty: $difficulty");
+            throw new Exception("Invalid difficulty: $difficulty");
         }
 
         [$min, $max] = $ranges[$difficulty];

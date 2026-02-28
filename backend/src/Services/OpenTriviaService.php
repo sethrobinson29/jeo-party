@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
+
 class OpenTriviaService extends BaseTriviaService
 {
     private const API_BASE = 'https://opentdb.com';
@@ -55,7 +57,7 @@ class OpenTriviaService extends BaseTriviaService
     public function getCluesByCategory(string $category, int $count = 5): array
     {
         if (!is_numeric($category)) {
-            throw new \Exception('Category ID must be numeric');
+            throw new Exception('Category ID must be numeric');
         }
 
         $response = $this->fetchWithRetry(
@@ -68,7 +70,7 @@ class OpenTriviaService extends BaseTriviaService
     public function getCluesByDifficulty(string $difficulty): array
     {
         if (!in_array($difficulty, ['easy', 'medium', 'hard'])) {
-            throw new \Exception("Invalid difficulty: $difficulty");
+            throw new Exception("Invalid difficulty: $difficulty");
         }
 
         $response = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=10&difficulty=$difficulty");
@@ -103,14 +105,14 @@ class OpenTriviaService extends BaseTriviaService
                     sleep($retryDelay);
                     continue;
                 }
-                throw new \Exception('Rate limit exceeded. Please try again in a moment.');
+                throw new Exception('Rate limit exceeded. Please try again in a moment.');
             }
 
             $this->assertValidResponse($response);
             return $response;
         }
 
-        throw new \Exception('Request failed after maximum retries.');
+        throw new Exception('Request failed after maximum retries.');
     }
 
     private function assertValidResponse(array $response): void
@@ -119,11 +121,11 @@ class OpenTriviaService extends BaseTriviaService
         $code = $response['response_code'] ?? -1;
 
         if ($code !== 0) {
-            throw new \Exception($errors[$code] ?? 'Unknown API error');
+            throw new Exception($errors[$code] ?? 'Unknown API error');
         }
 
         if (empty($response['results'])) {
-            throw new \Exception('No questions returned');
+            throw new Exception('No questions returned');
         }
     }
 }
