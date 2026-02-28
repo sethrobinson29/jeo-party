@@ -21,7 +21,7 @@ abstract class BaseTriviaService implements TriviaServiceInterface
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
 
-        curl_setopt_array($ch, [
+        $curlOptions = [
             CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
@@ -29,7 +29,14 @@ abstract class BaseTriviaService implements TriviaServiceInterface
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_HTTPHEADER     => $headers,
-        ]);
+        ];
+
+        $caBundle = self::resolveCaBundle();
+        if ($caBundle !== null) {
+            $curlOptions[CURLOPT_CAINFO] = $caBundle;
+        }
+
+        curl_setopt_array($ch, $curlOptions);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -59,4 +66,28 @@ abstract class BaseTriviaService implements TriviaServiceInterface
     }
 
     abstract protected function normalizeClue(array $rawData): array;
+
+    /**
+     * Resolves a trusted CA bundle path for Windows environments where curl
+     * has no default CA store. Returns null on systems where curl already
+     * knows where to look (Linux/macOS). Never falls back to disabling
+     * verification — callers must keep SSL_VERIFYPEER enabled regardless.
+     */
+    private static function resolveCaBundle(): ?string
+    {
+        $candidates = array_filter([
+            ini_get('curl.cainfo') ?: null,
+            ini_get('openssl.cafile') ?: null,
+            dirname(PHP_BINARY) . '/extras/ssl/cacert.pem',
+            __DIR__ . '/../../cacert.pem',
+        ]);
+
+        foreach ($candidates as $path) {
+            if (is_string($path) && file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
 }

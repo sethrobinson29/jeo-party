@@ -20,3 +20,4 @@ CLAUDE.md
 npm-debug.log*
 /backend/.htaccess
 /backend/logs/*.log
+/backend/cacert.pem
