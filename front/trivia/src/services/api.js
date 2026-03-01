@@ -30,3 +30,13 @@ export async function fetchCluesByCategory(categoryId, count = 5) {
     const data = await apiFetch(`/api/clues/category/${categoryId}?count=${count}`);
     return data.clues;
 }
+
+export async function fetchCluesByDifficulty(difficulty, count = 50) {
+    const data = await apiFetch(`/api/clues/difficulty/${difficulty}?count=${count}`);
+    return data.clues;
+}
+
+export async function fetchBoardClues() {
+    const data = await apiFetch('/api/clues/board');
+    return data.board;
+}

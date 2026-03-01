@@ -9,7 +9,9 @@ return [
     'GET' => [
         '/api/clues/random'               => [ClueController::class, 'random'],
         '/api/clues/batch'                => [ClueController::class, 'batch'],
-        '/api/clues/category/:categoryId' => [ClueController::class, 'category'],
-        '/api/categories'                 => [CategoryController::class, 'index'],
+        '/api/clues/category/:categoryId'   => [ClueController::class, 'category'],
+        '/api/clues/difficulty/:difficulty' => [ClueController::class, 'difficulty'],
+        '/api/clues/board'                  => [ClueController::class, 'board'],
+        '/api/categories'                   => [CategoryController::class, 'index'],
     ],
 ];

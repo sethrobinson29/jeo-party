@@ -61,4 +61,33 @@ class ClueController extends BaseController
             return Response::error('Failed to fetch clues for category');
         }
     }
+
+    public function difficultyAction(Request $request): Response
+    {
+        $difficulty = $this->getRouteParam($request, 'difficulty');
+
+        if (!in_array($difficulty, ['easy', 'medium', 'hard'])) {
+            return Response::error('Invalid difficulty', 400);
+        }
+
+        $count = (int) ($request->getQuery('count') ?? 50);
+        $count = max(1, min($count, 50));
+
+        try {
+            return Response::success(['clues' => $this->triviaService->getCluesByDifficulty($difficulty, $count)]);
+        } catch (Throwable $e) {
+            Logger::error('Failed to fetch clues by difficulty', ['exception' => $e, 'difficulty' => $difficulty]);
+            return Response::error('Failed to fetch clues by difficulty');
+        }
+    }
+
+    public function boardAction(Request $request): Response
+    {
+        try {
+            return Response::success(['board' => $this->triviaService->getBoardClues()]);
+        } catch (Throwable $e) {
+            Logger::error('Failed to build board', ['exception' => $e]);
+            return Response::error('Failed to build board');
+        }
+    }
 }

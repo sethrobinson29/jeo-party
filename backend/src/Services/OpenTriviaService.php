@@ -70,7 +70,7 @@ class OpenTriviaService extends BaseTriviaService
         return array_map(fn($q) => $this->normalizeClue($q), $response['results']);
     }
 
-    public function getCluesByDifficulty(string $difficulty): array
+    public function getCluesByDifficulty(string $difficulty, int $count = 50): array
     {
         if (!in_array($difficulty, ['easy', 'medium', 'hard'])) {
             throw new Exception("Invalid difficulty: $difficulty");
@@ -78,10 +78,42 @@ class OpenTriviaService extends BaseTriviaService
 
         $token    = $this->getOrCreateToken();
         $response = $this->fetchWithRetry(
-            self::API_BASE . "/api.php?amount=10&difficulty=$difficulty&type=multiple&token=$token"
+            self::API_BASE . "/api.php?amount=$count&difficulty=$difficulty&type=multiple&token=$token"
         );
 
         return array_map(fn($q) => $this->normalizeClue($q), $response['results']);
+    }
+
+    public function getBoardClues(int $categoryCount = 6, int $cluesPerCategory = 5): array
+    {
+        $token  = $this->getOrCreateToken();
+        $batch1 = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=50&type=multiple&token=$token");
+        $batch2 = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=50&type=multiple&token=$token");
+
+        $byCategory = [];
+        foreach (array_merge($batch1['results'], $batch2['results']) as $question) {
+            $cat                 = $this->stripCategoryPrefix($this->decodeHtml($question['category'] ?? ''));
+            $byCategory[$cat][] = $question;
+        }
+
+        $eligible = array_filter($byCategory, fn($clues) => count($clues) >= $cluesPerCategory);
+
+        if (count($eligible) < $categoryCount) {
+            throw new Exception("Not enough categories with {$cluesPerCategory}+ questions to build a {$categoryCount}-category board.");
+        }
+
+        $keys = array_keys($eligible);
+        shuffle($keys);
+
+        $board = [];
+        foreach (array_slice($keys, 0, $categoryCount) as $catName) {
+            $board[] = [
+                'category' => $catName,
+                'clues'    => array_map(fn($q) => $this->normalizeClue($q), array_slice($eligible[$catName], 0, $cluesPerCategory)),
+            ];
+        }
+
+        return $board;
     }
 
     public function getServiceName(): string

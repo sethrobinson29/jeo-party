@@ -62,7 +62,12 @@ class LocalJeopardyService extends BaseTriviaService
         return array_map(fn($q) => $this->normalizeClue($q), array_slice($filtered, 0, $count));
     }
 
-    public function getCluesByDifficulty(string $difficulty): array
+    public function getBoardClues(int $categoryCount = 6, int $cluesPerCategory = 5): array
+    {
+        return [];
+    }
+
+    public function getCluesByDifficulty(string $difficulty, int $count = 50): array
     {
         $ranges = ['easy' => [100, 400], 'medium' => [401, 800], 'hard' => [801, PHP_INT_MAX]];
 
