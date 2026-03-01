@@ -12,14 +12,16 @@ class OpenTriviaService extends BaseTriviaService
 
     public function getRandomClue(): array
     {
-        $response = $this->fetchWithRetry(self::API_BASE . '/api.php?amount=1');
+        $token    = $this->getOrCreateToken();
+        $response = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=1&type=multiple&token=$token");
 
         return $this->normalizeClue($response['results'][0]);
     }
 
     public function getBatchClues(int $count): array
     {
-        $response = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=$count");
+        $token    = $this->getOrCreateToken();
+        $response = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=$count&type=multiple&token=$token");
 
         return array_map(fn($q) => $this->normalizeClue($q), $response['results']);
     }
@@ -28,16 +30,16 @@ class OpenTriviaService extends BaseTriviaService
     {
         return [
             ['id' => 9,  'name' => 'General Knowledge'],
-            ['id' => 10, 'name' => 'Entertainment: Books'],
-            ['id' => 11, 'name' => 'Entertainment: Film'],
-            ['id' => 12, 'name' => 'Entertainment: Music'],
-            ['id' => 13, 'name' => 'Entertainment: Musicals & Theatres'],
-            ['id' => 14, 'name' => 'Entertainment: Television'],
-            ['id' => 15, 'name' => 'Entertainment: Video Games'],
-            ['id' => 16, 'name' => 'Entertainment: Board Games'],
+            ['id' => 10, 'name' => 'Books'],
+            ['id' => 11, 'name' => 'Film'],
+            ['id' => 12, 'name' => 'Music'],
+            ['id' => 13, 'name' => 'Musicals & Theatres'],
+            ['id' => 14, 'name' => 'Television'],
+            ['id' => 15, 'name' => 'Video Games'],
+            ['id' => 16, 'name' => 'Board Games'],
             ['id' => 17, 'name' => 'Science & Nature'],
-            ['id' => 18, 'name' => 'Science: Computers'],
-            ['id' => 19, 'name' => 'Science: Mathematics'],
+            ['id' => 18, 'name' => 'Computers'],
+            ['id' => 19, 'name' => 'Mathematics'],
             ['id' => 20, 'name' => 'Mythology'],
             ['id' => 21, 'name' => 'Sports'],
             ['id' => 22, 'name' => 'Geography'],
@@ -47,10 +49,10 @@ class OpenTriviaService extends BaseTriviaService
             ['id' => 26, 'name' => 'Celebrities'],
             ['id' => 27, 'name' => 'Animals'],
             ['id' => 28, 'name' => 'Vehicles'],
-            ['id' => 29, 'name' => 'Entertainment: Comics'],
-            ['id' => 30, 'name' => 'Science: Gadgets'],
-            ['id' => 31, 'name' => 'Entertainment: Japanese Anime & Manga'],
-            ['id' => 32, 'name' => 'Entertainment: Cartoon & Animations'],
+            ['id' => 29, 'name' => 'Comics'],
+            ['id' => 30, 'name' => 'Gadgets'],
+            ['id' => 31, 'name' => 'Japanese Anime & Manga'],
+            ['id' => 32, 'name' => 'Cartoon & Animations'],
         ];
     }
 
@@ -60,8 +62,9 @@ class OpenTriviaService extends BaseTriviaService
             throw new Exception('Category ID must be numeric');
         }
 
+        $token    = $this->getOrCreateToken();
         $response = $this->fetchWithRetry(
-            self::API_BASE . "/api.php?amount=$count&category=$category"
+            self::API_BASE . "/api.php?amount=$count&category=$category&type=multiple&token=$token"
         );
 
         return array_map(fn($q) => $this->normalizeClue($q), $response['results']);
@@ -73,7 +76,10 @@ class OpenTriviaService extends BaseTriviaService
             throw new Exception("Invalid difficulty: $difficulty");
         }
 
-        $response = $this->fetchWithRetry(self::API_BASE . "/api.php?amount=10&difficulty=$difficulty");
+        $token    = $this->getOrCreateToken();
+        $response = $this->fetchWithRetry(
+            self::API_BASE . "/api.php?amount=10&difficulty=$difficulty&type=multiple&token=$token"
+        );
 
         return array_map(fn($q) => $this->normalizeClue($q), $response['results']);
     }
@@ -86,7 +92,7 @@ class OpenTriviaService extends BaseTriviaService
     protected function normalizeClue(array $rawData): array
     {
         return [
-            'category'   => $this->decodeHtml($rawData['category'] ?? 'General Knowledge'),
+            'category'   => $this->stripCategoryPrefix($this->decodeHtml($rawData['category'] ?? 'General Knowledge')),
             'clue'       => $this->decodeHtml($rawData['question'] ?? ''),
             'response'   => $this->decodeHtml($rawData['correct_answer'] ?? ''),
             'difficulty' => $rawData['difficulty'] ?? 'medium',
@@ -95,17 +101,58 @@ class OpenTriviaService extends BaseTriviaService
         ];
     }
 
+    private function stripCategoryPrefix(string $category): string
+    {
+        return (string) preg_replace('/^(?:Entertainment|Science):\s*/', '', $category);
+    }
+
+    private function getOrCreateToken(): string
+    {
+        if (!isset($_SESSION['opentdb_token'])) {
+            $response = $this->makeHttpRequest(self::API_BASE . '/api_token.php?command=request');
+
+            if (($response['response_code'] ?? -1) !== 0) {
+                throw new Exception('Failed to obtain session token');
+            }
+
+            $_SESSION['opentdb_token'] = $response['token'];
+        }
+
+        return $_SESSION['opentdb_token'];
+    }
+
+    private function resetSessionToken(): void
+    {
+        $token = $_SESSION['opentdb_token'] ?? null;
+
+        if ($token === null) {
+            return;
+        }
+
+        // Token value is unchanged after reset; the seen-questions list is cleared server-side
+        $this->makeHttpRequest(self::API_BASE . "/api_token.php?command=reset&token=$token");
+    }
+
     private function fetchWithRetry(string $url, int $maxAttempts = 3, int $retryDelay = 5): array
     {
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             $response = $this->makeHttpRequest($url);
+            $code     = $response['response_code'] ?? -1;
 
-            if (($response['response_code'] ?? -1) === 5) {
+            if ($code === 5) {
                 if ($attempt < $maxAttempts) {
                     sleep($retryDelay);
                     continue;
                 }
                 throw new Exception('Rate limit exceeded. Please try again in a moment.');
+            }
+
+            if ($code === 4) {
+                $this->resetSessionToken();
+                if ($attempt < $maxAttempts) {
+                    continue;
+                }
+                throw new Exception('All available questions have been seen. Session has been reset — please try again.');
             }
 
             $this->assertValidResponse($response);
@@ -117,8 +164,8 @@ class OpenTriviaService extends BaseTriviaService
 
     private function assertValidResponse(array $response): void
     {
-        $errors = [1 => 'No results', 2 => 'Invalid parameter', 3 => 'Token not found', 4 => 'Token empty'];
-        $code = $response['response_code'] ?? -1;
+        $errors = [1 => 'No results', 2 => 'Invalid parameter', 3 => 'Token not found'];
+        $code   = $response['response_code'] ?? -1;
 
         if ($code !== 0) {
             throw new Exception($errors[$code] ?? 'Unknown API error');

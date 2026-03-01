@@ -129,7 +129,7 @@ function App() {
     return (
         <div className="app-root">
             <header className="app-header">
-                <h1 className="app-title" onClick={goHome} style={{ cursor: 'pointer' }}>JEOPARDY!</h1>
+                <h1 className="app-title" onClick={goHome} style={{ cursor: 'pointer' }}>JEO-PARTY!</h1>
                 {screen === 'playing' && (
                     <div className="progress-indicator">
                         {currentIndex + 1} / {clues.length}
@@ -180,6 +180,14 @@ function App() {
                     onHome={goHome}
                 />
             )}
+
+            <footer className="app-footer">
+                Questions provided by{' '}
+                <a href="https://opentdb.com" target="_blank" rel="noopener noreferrer">
+                    Open Trivia Database
+                </a>{' '}
+                (CC BY-SA 4.0)
+            </footer>
         </div>
     );
 }

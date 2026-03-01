@@ -25,6 +25,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
 Logger::init(new FileLogger(__DIR__ . '/logs/app.log'));
+session_start();
 
 set_exception_handler(function (Throwable $e): void {
     Logger::critical('Unhandled exception', ['exception' => $e]);
