@@ -28,6 +28,9 @@ export async function fetchCategories() {
 
 export async function fetchCluesByCategory(categoryId, count = 5) {
     const data = await apiFetch(`/api/clues/category/${categoryId}?count=${count}`);
+    if (data.clues.length < count) {
+        console.log(`fetchCluesByCategory: requested ${count}, received ${data.clues.length}`);
+    }
     return data.clues;
 }
 

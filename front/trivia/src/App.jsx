@@ -31,6 +31,7 @@ function App() {
     // Category mode
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategoryCount, setSelectedCategoryCount] = useState(5);
 
     // Difficulty mode
     const [selectedDifficulty, setSelectedDifficulty] = useState(null);
@@ -135,12 +136,13 @@ function App() {
         }
     };
 
-    const startCategoryGame = async (category) => {
+    const startCategoryGame = async (category, count = 5) => {
         setSelectedCategory(category);
+        setSelectedCategoryCount(count);
         setScreen('loading');
         setError(null);
         try {
-            const fetched = await fetchCluesByCategory(category.id, 5);
+            const fetched = await fetchCluesByCategory(category.id, count);
             setClues(fetched);
             setCurrentIndex(0);
             setScore(0);
@@ -195,7 +197,7 @@ function App() {
 
     const playAgain = () => {
         if (mode === 'random') startRandom();
-        else if (mode === 'category' && selectedCategory) startCategoryGame(selectedCategory);
+        else if (mode === 'category' && selectedCategory) startCategoryGame(selectedCategory, selectedCategoryCount);
         else if (mode === 'difficulty' && selectedDifficulty) startDifficultyGame(selectedDifficulty);
         else if (mode === 'board') startBoardMode();
     };
@@ -210,6 +212,7 @@ function App() {
         setResult(null);
         setError(null);
         setSelectedCategory(null);
+        setSelectedCategoryCount(5);
         setSelectedDifficulty(null);
         setBoardData([]);
         setBoardAnswers({});
@@ -226,18 +229,22 @@ function App() {
     const isLastClue = currentIndex + 1 >= clues.length;
     const boardTotal = boardData.reduce((sum, cat) => sum + cat.clues.length, 0);
 
+    const theme = mode === 'difficulty'
+        ? ({ easy: 'green', medium: 'gold', hard: 'red' }[selectedDifficulty] ?? 'cyan')
+        : ({ random: 'cyan', category: 'purple', board: 'green' }[mode] ?? 'cyan');
+
     return (
-        <div className="app-root">
+        <div className={`app-root theme--${theme}`}>
             <header className="app-header">
                 <h1 className="app-title" onClick={goHome} style={{ cursor: 'pointer' }}>JEO-PARTY!</h1>
                 {screen === 'playing' && (
                     <div className="progress-indicator">
-                        {currentIndex + 1} / {clues.length}
+                        <span className="score-correct">{score} ✓</span> &nbsp;·&nbsp; {currentIndex + 1} / {clues.length}
                     </div>
                 )}
                 {screen === 'board-clue' && (
                     <div className="progress-indicator">
-                        {Object.keys(boardAnswers).length} / {boardTotal}
+                        <span className="score-correct">{score} ✓</span> &nbsp;·&nbsp; {Object.keys(boardAnswers).length} / {boardTotal}
                     </div>
                 )}
             </header>
@@ -316,6 +323,7 @@ function App() {
                     total={mode === 'board' ? boardTotal : clues.length}
                     mode={mode}
                     categoryName={selectedCategory?.name}
+                    categoryCount={selectedCategoryCount}
                     difficultyName={selectedDifficulty}
                     onPlayAgain={playAgain}
                     onCategorySelect={() => setScreen('category-select')}

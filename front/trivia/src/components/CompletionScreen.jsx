@@ -1,10 +1,10 @@
 function CompletionScreen({
-    score, total, mode, categoryName, difficultyName,
+    score, total, mode, categoryName, categoryCount, difficultyName,
     onPlayAgain, onCategorySelect, onDifficultySelect, onHome,
 }) {
     const playAgainLabel = {
         random:     'Play Again',
-        category:   `5 More: ${categoryName}`,
+        category:   `${categoryCount} More: ${categoryName}`,
         difficulty: `50 More: ${difficultyName ? difficultyName.charAt(0).toUpperCase() + difficultyName.slice(1) : ''}`,
         board:      'New Board',
     }[mode] ?? 'Play Again';

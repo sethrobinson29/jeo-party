@@ -11,7 +11,7 @@ function HomeScreen({ onRandomMode, onCategoryMode, onDifficultyMode, onBoardMod
                 <button className="mode-tile mode-tile--category" onClick={onCategoryMode}>
                     <span className="mode-icon">◈</span>
                     <span className="mode-title">By Category</span>
-                    <span className="mode-desc">5 questions from your chosen topic</span>
+                    <span className="mode-desc">1–50 questions from your chosen topic</span>
                 </button>
                 <button className="mode-tile mode-tile--difficulty" onClick={onDifficultyMode}>
                     <span className="mode-icon">⚡</span>
