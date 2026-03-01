@@ -73,7 +73,6 @@ function App() {
         setSelectedBoardCell({ catIdx, clueIdx });
         setAnswer('');
         setResult(null);
-        setValidationError('');
         setScreen('board-clue');
     };
 
@@ -99,7 +98,6 @@ function App() {
         }
         setAnswer('');
         setResult(null);
-        setValidationError('');
         setSelectedBoardCell(null);
     };
 
@@ -216,7 +214,6 @@ function App() {
         setBoardData([]);
         setBoardAnswers({});
         setSelectedBoardCell(null);
-        setValidationError('');
     };
 
     // ─── Derived values ───────────────────────────────────────
