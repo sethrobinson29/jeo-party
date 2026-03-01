@@ -27,7 +27,6 @@ function App() {
 
     const [answer, setAnswer] = useState('');
     const [result, setResult] = useState(null);
-    const [validationError, setValidationError] = useState('');
 
     // Category mode
     const [categories, setCategories] = useState([]);
@@ -43,11 +42,8 @@ function App() {
 
     const [error, setError] = useState(null);
 
-    const validateInput = (value) => /^[a-zA-Z0-9\s'''\-&.,!?]*$/.test(value);
-
     const handleAnswerChange = (value) => {
-        setAnswer(value);
-        setValidationError(validateInput(value) ? '' : 'Answer contains unsupported characters');
+        setAnswer(value.replace(/[^a-zA-Z0-9\s'''\-&.,!?]/g, ''));
     };
 
     // ─── Linear play ──────────────────────────────────────────
@@ -68,7 +64,6 @@ function App() {
             setCurrentIndex(i => i + 1);
             setAnswer('');
             setResult(null);
-            setValidationError('');
         }
     };
 
@@ -121,7 +116,6 @@ function App() {
             setScore(0);
             setAnswer('');
             setResult(null);
-            setValidationError('');
             setScreen('playing');
         } catch (err) {
             setError(err.message || 'Failed to load questions');
@@ -154,7 +148,6 @@ function App() {
             setScore(0);
             setAnswer('');
             setResult(null);
-            setValidationError('');
             setScreen('playing');
         } catch (err) {
             setError(err.message || 'Failed to load questions');
@@ -179,7 +172,6 @@ function App() {
             setScore(0);
             setAnswer('');
             setResult(null);
-            setValidationError('');
             setScreen('playing');
         } catch (err) {
             setError(err.message || 'Failed to load questions');
@@ -233,7 +225,7 @@ function App() {
     const boardClue = selectedBoardCell
         ? boardData[selectedBoardCell.catIdx]?.clues[selectedBoardCell.clueIdx]
         : null;
-    const isSubmitDisabled = !answer.trim() || validationError !== '' || result !== null;
+    const isSubmitDisabled = !answer.trim() || result !== null;
     const isLastClue = currentIndex + 1 >= clues.length;
     const boardTotal = boardData.reduce((sum, cat) => sum + cat.clues.length, 0);
 
@@ -287,7 +279,6 @@ function App() {
                 <ClueCard
                     clue={currentClue}
                     answer={answer}
-                    validationError={validationError}
                     isSubmitDisabled={isSubmitDisabled}
                     onAnswerChange={handleAnswerChange}
                     onSubmit={handleSubmit}
@@ -307,7 +298,6 @@ function App() {
                 <ClueCard
                     clue={boardClue}
                     answer={answer}
-                    validationError={validationError}
                     isSubmitDisabled={isSubmitDisabled}
                     onAnswerChange={handleAnswerChange}
                     onSubmit={handleBoardSubmit}

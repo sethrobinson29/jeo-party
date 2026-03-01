@@ -1,4 +1,4 @@
-function ClueCard({ clue, answer, validationError, isSubmitDisabled, onAnswerChange, onSubmit }) {
+function ClueCard({ clue, answer, isSubmitDisabled, onAnswerChange, onSubmit }) {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !isSubmitDisabled) {
             onSubmit();
@@ -22,12 +22,9 @@ function ClueCard({ clue, answer, validationError, isSubmitDisabled, onAnswerCha
                     onChange={(e) => onAnswerChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type your answer here"
-                    className={`answer-input${validationError ? ' error' : ''}`}
+                    className="answer-input"
                     autoFocus
                 />
-                {validationError && (
-                    <p className="validation-error">⚠ {validationError}</p>
-                )}
             </div>
 
             <button className="btn-primary" onClick={onSubmit} disabled={isSubmitDisabled}>
