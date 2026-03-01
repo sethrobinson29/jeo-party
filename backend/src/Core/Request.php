@@ -8,7 +8,7 @@ class Request
 {
     private array $routeParams = [];
 
-    public function __construct(
+    private function __construct(
         private string $method,
         private string $uri,
         private string $path,

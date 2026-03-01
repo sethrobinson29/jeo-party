@@ -6,7 +6,7 @@ namespace App\Core;
 
 class Response
 {
-    public function __construct(
+    private function __construct(
         private array $data,
         private int $statusCode = 200,
         private array $headers = [],

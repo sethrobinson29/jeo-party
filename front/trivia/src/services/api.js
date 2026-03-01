@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8000';
+const BASE = process.env.REACT_APP_API_URL || '';
 
 async function apiFetch(path) {
     const response = await fetch(`${BASE}${path}`);
@@ -28,5 +28,18 @@ export async function fetchCategories() {
 
 export async function fetchCluesByCategory(categoryId, count = 5) {
     const data = await apiFetch(`/api/clues/category/${categoryId}?count=${count}`);
+    if (data.clues.length < count) {
+        console.log(`fetchCluesByCategory: requested ${count}, received ${data.clues.length}`);
+    }
     return data.clues;
+}
+
+export async function fetchCluesByDifficulty(difficulty, count = 50) {
+    const data = await apiFetch(`/api/clues/difficulty/${difficulty}?count=${count}`);
+    return data.clues;
+}
+
+export async function fetchBoardClues() {
+    const data = await apiFetch('/api/clues/board');
+    return data.board;
 }

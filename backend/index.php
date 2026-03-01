@@ -25,6 +25,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
 Logger::init(new FileLogger(__DIR__ . '/logs/app.log'));
+session_start();
 
 set_exception_handler(function (Throwable $e): void {
     Logger::critical('Unhandled exception', ['exception' => $e]);
@@ -42,16 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$request = Request::createFromGlobals();
+try {
+    $request = Request::createFromGlobals();
 
-if (!$request->isValid()) {
-    Logger::warning('Invalid request rejected', [
-        'method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN',
-        'uri'    => substr($_SERVER['REQUEST_URI'] ?? '', 0, 200),
-        'ip'     => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-    ]);
-    Response::error('Invalid request', 400)->send();
-    exit;
+    if (!$request->isValid()) {
+        Logger::warning('Invalid request rejected', [
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN',
+            'uri'    => substr($_SERVER['REQUEST_URI'] ?? '', 0, 200),
+            'ip'     => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        ]);
+        Response::error('Invalid request', 400)->send();
+        exit;
+    }
+
+    (new Application())->handle($request)->send();
+} catch (Throwable $e) {
+    Logger::critical('Fatal error', ['exception' => $e]);
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Internal server error']);
 }
-
-(new Application())->handle($request)->send();

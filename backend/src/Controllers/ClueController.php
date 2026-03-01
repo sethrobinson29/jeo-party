@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Logging\Logger;
 use App\Services\OpenTriviaService;
 use App\Services\TriviaServiceInterface;
+use Throwable;
 
 class ClueController extends BaseController
 {
@@ -23,9 +24,9 @@ class ClueController extends BaseController
     {
         try {
             return Response::success(['clue' => $this->triviaService->getRandomClue()]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Logger::error('Failed to fetch random clue', ['exception' => $e]);
-            return Response::error('Failed to fetch clue', 500);
+            return Response::error('Failed to fetch clue');
         }
     }
 
@@ -36,9 +37,9 @@ class ClueController extends BaseController
 
         try {
             return Response::success(['clues' => $this->triviaService->getBatchClues($count)]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Logger::error('Failed to fetch batch clues', ['exception' => $e, 'count' => $count]);
-            return Response::error('Failed to fetch clues', 500);
+            return Response::error('Failed to fetch clues');
         }
     }
 
@@ -55,9 +56,38 @@ class ClueController extends BaseController
 
         try {
             return Response::success(['clues' => $this->triviaService->getCluesByCategory($categoryId, $count)]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             Logger::error('Failed to fetch clues for category', ['exception' => $e, 'category' => $categoryId]);
-            return Response::error('Failed to fetch clues for category', 500);
+            return Response::error('Failed to fetch clues for category');
+        }
+    }
+
+    public function difficultyAction(Request $request): Response
+    {
+        $difficulty = $this->getRouteParam($request, 'difficulty');
+
+        if (!in_array($difficulty, ['easy', 'medium', 'hard'])) {
+            return Response::error('Invalid difficulty', 400);
+        }
+
+        $count = (int) ($request->getQuery('count') ?? 50);
+        $count = max(1, min($count, 50));
+
+        try {
+            return Response::success(['clues' => $this->triviaService->getCluesByDifficulty($difficulty, $count)]);
+        } catch (Throwable $e) {
+            Logger::error('Failed to fetch clues by difficulty', ['exception' => $e, 'difficulty' => $difficulty]);
+            return Response::error('Failed to fetch clues by difficulty');
+        }
+    }
+
+    public function boardAction(Request $request): Response
+    {
+        try {
+            return Response::success(['board' => $this->triviaService->getBoardClues()]);
+        } catch (Throwable $e) {
+            Logger::error('Failed to build board', ['exception' => $e]);
+            return Response::error('Failed to build board');
         }
     }
 }
